@@ -8,6 +8,11 @@
 
 import Foundation
 
+enum NetworkError: Error {
+    case otherError
+    case noData
+}
+
 class UsersController {
     var users: [User] = []
     
@@ -56,6 +61,26 @@ class UsersController {
                 completion(error)
             }
         }.resume()
+    }
+    
+    func fetchThumbnailAndLarge(for urlString: String, completion: @escaping (Result<Data, NetworkError>)->Void) {
+        let imageURL = URL(string: urlString)!
         
+        var request = URLRequest(url: imageURL)
+        request.httpMethod = "GET"
+        
+        URLSession.shared.dataTask(with: request) { (data, _, error) in
+            if let error = error {
+                NSLog("there is an error in getting data: \(error)")
+                completion(.failure(.otherError))
+                return
+            }
+            guard let data = data else {
+                NSLog("there is an error getting data")
+                completion(.failure(.noData))
+                return
+            }
+            completion(.success(data))
+        }.resume()
     }
 }

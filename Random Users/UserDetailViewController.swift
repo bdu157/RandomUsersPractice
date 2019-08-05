@@ -6,6 +6,7 @@
 //  Copyright © 2019 Erica Sadun. All rights reserved.
 //
 
+import Foundation
 import UIKit
 
 class UserDetailTableViewController: UIViewController {
@@ -22,7 +23,6 @@ class UserDetailTableViewController: UIViewController {
             self.updateViews()
         }
     }
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,8 +30,8 @@ class UserDetailTableViewController: UIViewController {
     }
  
     private func updateViews() {
-        guard let usersController = usersController,
-            let user = user else {return}
+        if let usersController = usersController,
+            let user = user {
         let title = user.title.capitalized
         let first = user.first.capitalized
         let last = user.last.capitalized
@@ -40,6 +40,15 @@ class UserDetailTableViewController: UIViewController {
         self.emailAddressLabel.text = user.email
         
         //fetchingLarge image based on user and usersController and load the image in main queue
+            usersController.fetchThumbnailAndLarge(for: user.large) { (result) in
+                if let result = try? result.get() {
+                    DispatchQueue.main.async {
+                        let image = UIImage(data: result)
+                        self.largeImage.image = image
+                    }
+                }
+            }
+        }
     }
 
 }

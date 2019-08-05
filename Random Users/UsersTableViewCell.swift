@@ -13,6 +13,7 @@ class UsersTableViewCell: UITableViewCell {
     @IBOutlet weak var thumbnailImage: UIImageView!
     @IBOutlet weak var fullNameLabel: UILabel!
     
+    let usersController = UsersController()
     var user : User? {
         didSet {
             self.updateViews()
@@ -27,6 +28,14 @@ class UsersTableViewCell: UITableViewCell {
             let last = user.last.capitalized
             self.fullNameLabel.text = "\(title) \(first) \(last)"
             //fetchthumbnail for now
+            self.usersController.fetchThumbnailAndLarge(for: user.thumbnail) { (result) in
+                if let result = try? result.get() {
+                    DispatchQueue.main.async {
+                        let image = UIImage(data: result)
+                        self.thumbnailImage.image = image
+                    }
+                }
+            }
         }
     }
 }
