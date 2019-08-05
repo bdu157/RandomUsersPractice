@@ -18,7 +18,7 @@ class UsersController {
     
     var baseURL = URL(string: "https://randomuser.me/api/")!
     //https://randomuser.me/api/?format=json&inc=name,email,phone,picture&results=1000
-    func getUsers(forNum numberOfResults: Int, completion: @escaping (Error?)->Void) {
+    func getUsers(forNum numberOfResults: Int = 2000, completion: @escaping (Error?)->Void) {
         
         var urlComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: true)
         let formatQueryItem = URLQueryItem(name: "format", value: "json")
@@ -54,7 +54,7 @@ class UsersController {
                 let userDatas = try jsonDecoder.decode(Users.self, from: data)
                 let userData = userDatas.results
                 self.users = userData
-                print(self.users)
+                //print(self.users)
                 completion(nil)
             } catch {
                 NSLog("unable to complete decdoing: \(error)")
@@ -80,6 +80,7 @@ class UsersController {
                 completion(.failure(.noData))
                 return
             }
+            
             completion(.success(data))
         }.resume()
     }

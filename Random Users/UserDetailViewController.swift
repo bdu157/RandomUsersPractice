@@ -17,6 +17,7 @@ class UserDetailTableViewController: UIViewController {
     @IBOutlet weak var phoneNumberLabel: UILabel!
     @IBOutlet weak var emailAddressLabel: UILabel!
     
+    var cache: Cache<String, Data>?
     var usersController: UsersController?
     var user: User? {
         didSet {
@@ -46,6 +47,8 @@ class UserDetailTableViewController: UIViewController {
                         let image = UIImage(data: result)
                         self.largeImage.image = image
                     }
+                    guard let passedCache = self.cache else {return}
+                    passedCache.cache(value: result, for: user.email)
                 }
             }
         }

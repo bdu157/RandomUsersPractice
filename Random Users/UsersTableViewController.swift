@@ -6,18 +6,20 @@
 //  Copyright © 2019 Erica Sadun. All rights reserved.
 //
 
+import Foundation
 import UIKit
 
 class UsersTableViewController: UITableViewController {
     
     var usersController = UsersController()
-    
-    
+    var cache = Cache<String, Data>()
+    private var operations = [String : Operation]()
+    private var photoFetchQueue = OperationQueue()
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.usersController.getUsers(forNum: 1000) { (error) in
+        self.usersController.getUsers{ (error) in
             if let error = error {
                 print(error)
                 return
@@ -40,7 +42,59 @@ class UsersTableViewController: UITableViewController {
         guard let customCell = cell as? UsersTableViewCell else {return UITableViewCell() }
         let user = self.usersController.users[indexPath.row]
         customCell.user = user
+        self.loadImage(forCell: customCell, forRowAt: indexPath)
         return cell
+    }
+    override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let user = usersController.users[indexPath.row]
+        
+        operations[user.email]?.cancel()
+        print("cancelling is happening")
+    }
+    
+    
+    private func loadImage(forCell cell: UsersTableViewCell, forRowAt indexPath: IndexPath) {
+        let user = usersController.users[indexPath.row]
+        
+        
+        let fetchPhotoOperation = FetchPhotoOperation(user: user)
+        
+        let cachedOperation = BlockOperation {
+            if let data = fetchPhotoOperation.imageData {
+                self.cache.cache(value: data, for: fetchPhotoOperation.email)
+            }
+        }
+        
+        let checkReuseOperation = BlockOperation {
+            defer {self.operations.removeValue(forKey: user.email)}
+            
+            if let currentIndexPath = self.tableView.indexPath(for: cell),
+                currentIndexPath != indexPath {
+                return
+            } else {
+                if let cachedValue = self.cache.value(for: user.email) {
+                    let image = UIImage(data: cachedValue)
+                    cell.thumbnailImage.image = image
+                } else {
+                    if let data = fetchPhotoOperation.imageData {
+                        let image = UIImage(data: data)
+                        cell.thumbnailImage.image = image
+                    }
+                }
+            }
+        }
+        
+        cachedOperation.addDependency(fetchPhotoOperation)
+        checkReuseOperation.addDependency(fetchPhotoOperation)
+        
+        photoFetchQueue.addOperation(fetchPhotoOperation)
+        photoFetchQueue.addOperation(cachedOperation)
+        
+        //checkResueOperation should run in main queue since it will update UI - cell.thumbnailimage
+        OperationQueue.main.addOperation(checkReuseOperation)
+        
+        self.operations[user.email] = fetchPhotoOperation
+        
     }
 
     // MARK: - Navigation
