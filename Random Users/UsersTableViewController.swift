@@ -47,7 +47,12 @@ class UsersTableViewController: UITableViewController {
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
+        if segue.identifier == "ToDetailVC" {
+            guard let destVC = segue.destination as? UserDetailTableViewController,
+                let selectedRow = self.tableView.indexPathForSelectedRow else {return}
+                destVC.user = self.usersController.users[selectedRow.row]
+                destVC.usersController = self.usersController
+        }
     }
 
 }
