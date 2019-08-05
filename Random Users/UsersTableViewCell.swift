@@ -13,16 +13,20 @@ class UsersTableViewCell: UITableViewCell {
     @IBOutlet weak var thumbnailImage: UIImageView!
     @IBOutlet weak var fullNameLabel: UILabel!
     
+    var user : User? {
+        didSet {
+            self.updateViews()
+        }
+    }
+
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
+    private func updateViews() {
+        if let user = user {
+            let title = user.title.capitalized
+            let first = user.first.capitalized
+            let last = user.last.capitalized
+            self.fullNameLabel.text = "\(title) \(first) \(last)"
+            //fetchthumbnail for now
+        }
     }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-
 }
