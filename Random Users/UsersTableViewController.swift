@@ -37,6 +37,8 @@ class UsersTableViewController: UITableViewController {
         return usersController.users.count
     }
 
+    
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "UserCell", for: indexPath)
         guard let customCell = cell as? UsersTableViewCell else {return UITableViewCell() }
@@ -66,7 +68,7 @@ class UsersTableViewController: UITableViewController {
         }
         
         let checkReuseOperation = BlockOperation {
-            defer {self.operations.removeValue(forKey: user.email)}
+            //defer {self.operations.removeValue(forKey: user.email)}
             
             if let currentIndexPath = self.tableView.indexPath(for: cell),
                 currentIndexPath != indexPath {
@@ -93,7 +95,7 @@ class UsersTableViewController: UITableViewController {
         //checkResueOperation should run in main queue since it will update UI - cell.thumbnailimage
         OperationQueue.main.addOperation(checkReuseOperation)
         
-        self.operations[user.email] = fetchPhotoOperation
+        //self.operations[user.email] = fetchPhotoOperation
         
     }
 
