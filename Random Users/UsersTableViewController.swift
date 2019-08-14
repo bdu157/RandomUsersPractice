@@ -55,6 +55,7 @@ class UsersTableViewController: UITableViewController {
     }
     
     
+    
     private func loadImage(forCell cell: UsersTableViewCell, forRowAt indexPath: IndexPath) {
         let user = usersController.users[indexPath.row]
         
